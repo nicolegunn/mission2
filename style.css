@@ -1,0 +1,58 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  font-size: 4rem;
+  margin: 25px;
+}
+
+.flex-container-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+table {
+  border: solid, black, 2px;
+  background-color: black;
+  margin-bottom: 30px;
+}
+
+td {
+  height: 50px;
+  width: 50px;
+  border: solid, black, 2px;
+  background-color: whitesmoke;
+}
+
+input {
+  border: none;
+  height: 100%;
+  width: 100%;
+  background-color: inherit;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.alt {
+  background-color: rgb(216, 216, 216);
+}
+
+.solved {
+  background-color: rgb(139, 236, 188);
+}
+
+button {
+  margin: 10px;
+  padding: 5px 15px;
+  font-size: 1rem;
+}

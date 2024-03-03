@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="./solver.js" defer></script>
+  </head>
+  <body>
+    <h1>Sudoku Solver</h1>
+    <div class="flex-container-center">
+      <table id="sudoku-table">
+        <tr>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+        </tr>
+        <tr>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+        </tr>
+        <tr>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+        </tr>
+        <tr>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+        </tr>
+        <tr>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+        </tr>
+        <tr>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+        </tr>
+        <tr>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+        </tr>
+        <tr>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+        </tr>
+        <tr>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td class="alt">
+            <input type="text" maxlength="1" pattern="[1-9]" />
+          </td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+          <td><input type="text" maxlength="1" pattern="[1-9]" /></td>
+        </tr>
+      </table>
+    </div>
+    <div class="flex-container-center">
+      <button onclick="solvePuzzle()">Solve Puzzle</button>
+      <button onclick="populateDemoGame()">Demo Puzzle</button>
+    </div>
+  </body>
+</html>
