@@ -51,13 +51,13 @@ input {
   background-color: rgb(139, 236, 188);
 }
 
-.unsolvable{
+.unsolvable {
   font-size: 10px;
 }
 
 button {
   margin: 10px;
   padding: 5px 15px;
-  font-size: 1rem;
-  width: 130px;
+  font-size: 0.9rem;
+  width: 150px;
 }

@@ -1,7 +1,7 @@
 const SIZE = 9;
 const BOX_SIZE = Math.sqrt(SIZE);
 const sudokuTable = document.getElementById("sudoku-table").firstElementChild; //tbody is child element of table element
-const maximumIterations = 100000;
+const maximumIterations = 1000;
 
 const rows = {};
 const columns = {};
@@ -341,7 +341,7 @@ function populateDemoGame(event) {
   document.getElementById(`cell81`).value = 8;
 }
 
-function populateHardDemoGame(event) {
+function populateUnsolvable(event) {
   event.preventDefault();
   reset();
   document.getElementById(`cell2`).value = 9;
