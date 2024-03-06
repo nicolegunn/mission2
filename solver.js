@@ -1,7 +1,7 @@
 const SIZE = 9;
 const BOX_SIZE = Math.sqrt(SIZE);
 const sudokuTable = document.getElementById("sudoku-table").firstElementChild; //tbody is child element of table element
-const maximumIterations = 10000;
+const maximumIterations = 100000;
 
 const rows = {};
 const columns = {};
@@ -63,7 +63,42 @@ function retrieveTableCellInfo(cellID) {
   return cell;
 }
 
-/*1. Adds cell number and value of populated cells to the enteredValues object. 
+//Removes a given cellValue from a given cellID
+function remove(cellID, cellValue) {
+  if (cellID in possibleValues) {
+    let index = possibleValues[cellID].indexOf(Number(cellValue));
+    if (index !== -1) {
+      possibleValues[cellID].splice(index, 1);
+    }
+  }
+}
+
+/*Removes impossible values from the cells in the same row, column and box as the subject
+      i.e. removes the subject cell's value from the array of possible values for each related cell*/
+function removeImpossibleValues(populatedCellID) {
+  const cell = retrieveTableCellInfo(populatedCellID);
+  /*For each cell in the same row, column or box class as the cell with the given populatedCellID, 
+  the remove function is used to check for the populated cell's value in the possible values array of each cell and removes it if present*/
+  for (let i = 0; i < SIZE; i++) {
+    let cellInSameRow = rows[cell.rowClass][i];
+    remove(cellInSameRow, cell.value);
+    let cellInSameColumn = columns[cell.columnClass][i];
+    remove(cellInSameColumn, cell.value);
+    let cellInSameBox = boxes[cell.boxClass][i];
+    remove(cellInSameBox, cell.value);
+  }
+}
+
+function setCellValue(cellID, cellValue) {
+  let cell = retrieveTableCellInfo(cellID);
+  cell.tableCell.classList.add("solved");
+  cell.tableCell.value = cellValue;
+  enteredValues[cell.ID] = cellValue;
+  delete possibleValues[cell.ID];
+  removeImpossibleValues(cell.ID);
+}
+
+/*Adds cell number and value of populated cells to the enteredValues object. 
 The key for each property is the cell number and the value is that of the cell input.*/
 function populateEnteredValues() {
   for (let i = 1; i <= SIZE * SIZE; i++) {
@@ -74,35 +109,7 @@ function populateEnteredValues() {
   }
 }
 
-/*3. Removes impossible values from the cells in the same row, column and box as the subject
-      i.e. removes the subject cell's value from the array of possible values for each related cell*/
-function removeImpossibleValues(populatedCellID) {
-  const cell = retrieveTableCellInfo(populatedCellID);
-
-  function remove(cellID) {
-    cellID = String(cellID);
-    if (cellID in possibleValues) {
-      let index = possibleValues[cellID].indexOf(cell.value);
-      if (index !== -1) {
-        possibleValues[cellID].splice(index, 1);
-      }
-    }
-  }
-
-  /*For each cell in the same row, column or box class as the cell with the given populatedCellID, 
-  the remove function is used to check for the populated cell's value in the possible values array of each cell and removes it if present*/
-  for (let i = 0; i < SIZE; i++) {
-    let cellInSameRow = rows[cell.rowClass][i];
-    remove(cellInSameRow);
-    let cellInSameColumn = columns[cell.columnClass][i];
-    remove(cellInSameColumn);
-    let cellInSameBox = boxes[cell.boxClass][i];
-    remove(cellInSameBox);
-  }
-}
-
-//2. Creates an object with keys equal to the cell number of all unpopulated cells and the value equal to an array of their possible values
-//    Calls the removeImpossibleValues() 3. above.
+// Creates an object with keys equal to the cell number of all unpopulated cells and the value equal to an array of their possible values
 function populatePossibleValues() {
   for (let i = 1; i <= SIZE * SIZE; i++) {
     String(i) in enteredValues
@@ -115,18 +122,14 @@ function populatePossibleValues() {
   }
 }
 
-//4.
 function solve() {
+  /*Checks whether any cells have only one possible value, if so, 
+  that value is applied and removed from the arrays in the possibleValues object for cells with the same row, column or box classes*/
   function checkSingleSolution() {
     for (let cellID in possibleValues) {
       if (possibleValues[cellID].length === 1) {
-        let cell = retrieveTableCellInfo(cellID);
-        cell.tableCell.classList.add("solved");
-        cell.tableCell.value = possibleValues[cellID][0];
-
-        enteredValues[cellID] = possibleValues[cellID][0];
-        delete possibleValues[cellID];
-        removeImpossibleValues(cellID);
+        let cellValue = possibleValues[cellID][0];
+        setCellValue(cellID, cellValue);
       }
     }
   }
@@ -138,13 +141,12 @@ function solve() {
       let remainingValues = [...Array(SIZE).keys()].map((key) => key + 1);
       let valueCount = {};
 
-      for (let j = 0; j < arr.length; j++) {
-        let cellID = arr[j];
-
-        //Adjusts the remainingValues array initialized above by removing all entered values
-        if (cellID in enteredValues) {
+      //Collects all the cell IDs in the subject array (row, column or box i)
+      for (let cell of arr) {
+        //Adjusts the remainingValues array by removing all entered values
+        if (cell in enteredValues) {
           remainingValues.splice(
-            remainingValues.indexOf(enteredValues[cellID]),
+            remainingValues.indexOf(enteredValues[cell]),
             1
           );
         }
@@ -152,142 +154,77 @@ function solve() {
 
       /*Creates an obj inside valueCount for each remainingValue with keys of count and ID. 
         Count is a number, IDs is an array of cell numbers for which the remaining value is a possible value*/
-      for (let j = 0; j < remainingValues.length; j++) {
-        valueCount[remainingValues[j]] = { count: 0, IDs: [] };
+      for (let cell of remainingValues) {
+        valueCount[cell] = { count: 0, IDs: [] };
       }
 
-      /*Loops through each cellID in the appropriate row, column or box array, checks if the cellID is in the possibleValues object,
+      /*Loops through each cellID in the subject array, checks if the cellID is in the possibleValues object,
             if it is, then sets the possibleValuesArray = the array stored at possibleValues[cellID],
-            then for each value in that array, it checks whether the value exists as a key in the valueCount object, 
-            and if so, it adds 1 to the count and pushes the cellID to the IDs array within valueCount*/
-      for (let j = 0; j < arr.length; j++) {
-        let cellID = arr[j];
+            then for each value in that array it adds 1 to the count of that value within the valueCount object 
+            and pushes the cellID to the IDs array within valueCount*/
+      for (let cell of arr) {
+        if (cell in possibleValues) {
+          let possibleValuesArray = possibleValues[cell];
 
-        if (cellID in possibleValues) {
-          let possibleValuesArray = possibleValues[cellID];
-
-          for (let x = 0; x < possibleValuesArray.length; x++) {
-            let value = possibleValuesArray[x];
-            //there is an error happening when this if statement isn't included - need to work out why
-            //if the cellID is in possibleValues then surely the values would all be in valueCount:
-            if (value in valueCount) {
-              let count = valueCount[value]["count"];
-              count++;
-              valueCount[value]["count"] = count;
-
-              valueCount[value]["IDs"].push(cellID);
-            }
+          for (let cellValue of possibleValuesArray) {
+            valueCount[cellValue]["count"] += 1;
+            valueCount[cellValue]["IDs"].push(cell);
           }
         }
       }
 
       for (let val in valueCount) {
+        //Checks the valueCount object for instances of a single cell solution for a remaining value and applies the value to this cell.
         if (valueCount[val].count === 1) {
-          let cellID = valueCount[val].IDs[0];
+          setCellValue(valueCount[val].IDs[0], Number(val));
+        } else if (obj !== boxes) {
+          /*If all occurrences of a remaining value within a row/column occur within the same box, 
+          then that value is removed from other box cells within the Possible Values object. */
+          let firstCell = retrieveTableCellInfo(valueCount[val]["IDs"][0]);
+          let boxClass = firstCell.boxClass;
 
-          let cell = retrieveTableCellInfo(cellID);
+          let valueCountCellsInSameBox = valueCount[val]["IDs"].filter(
+            (cellID) => boxes[boxClass].includes(cellID)
+          );
 
-          cell.tableCell.classList.add("solved");
-          cell.tableCell.value = Number(val);
+          if (
+            valueCount[val]["IDs"].length === valueCountCellsInSameBox.length
+          ) {
+            let cellsToAdjust = Object.keys(possibleValues)
+              .filter((key) => boxes[boxClass].includes(Number(key)))
+              .filter((id) => !valueCountCellsInSameBox.includes(Number(id)));
 
-          enteredValues[cellID] = Number(val);
-          delete possibleValues[cellID];
-          removeImpossibleValues(cellID);
+            if (cellsToAdjust.length > 0) {
+              for (let cell of cellsToAdjust) {
+                remove(cell, val);
+              }
+            }
+          }
         }
       }
-    }
-  }
 
-  //<----Testing new code below this line------>
-
-  function checkDoubles() {
-    for (box = 1; box <= SIZE; box++) {
-      let idsInPossibleValuesAndBox = Object.keys(possibleValues).filter(
-        (key) => boxes[`box${box}`].includes(Number(key))
+      let idsInPossibleValuesAndObjArray = Object.keys(possibleValues).filter(
+        (key) => arr.includes(Number(key))
       );
-
-      let length2Keys = idsInPossibleValuesAndBox.filter(
+      let length2Keys = idsInPossibleValuesAndObjArray.filter(
         (key) => possibleValues[key].length === 2
       );
 
       if (length2Keys.length > 0) {
-        for (i = 0; i < length2Keys.length - 1; i++) {
-          for (j = i + 1; j < length2Keys.length; j++) {
+        for (let x = 0; x < length2Keys.length - 1; x++) {
+          for (let y = x + 1; y < length2Keys.length; y++) {
             if (
-              possibleValues[length2Keys[i]].join() ===
-              possibleValues[length2Keys[j]].join()
+              possibleValues[length2Keys[x]].join() ===
+              possibleValues[length2Keys[y]].join()
             ) {
-              let cell1 = retrieveTableCellInfo(length2Keys[i]);
-              let cell2 = retrieveTableCellInfo(length2Keys[j]);
-
-              for (let id of idsInPossibleValuesAndBox) {
-                if (id !== cell1.ID && id !== cell2.ID) {
-                  let index = possibleValues[id].indexOf(
-                    possibleValues[cell1.ID][0]
-                  );
-
-                  if (index !== -1) {
-                    possibleValues[id].splice(index, 1);
-                  }
-
-                  index = possibleValues[id].indexOf(
-                    possibleValues[cell1.ID][1]
-                  );
-
-                  if (index !== -1) {
-                    possibleValues[id].splice(index, 1);
-                  }
-                }
-              }
-
-              if (cell1.rowClass === cell2.rowClass) {
-                let idsInPossibleValuesAndRow = Object.keys(
-                  possibleValues
-                ).filter((key) => rows[cell1.rowClass].includes(Number(key)));
-
-                for (let id of idsInPossibleValuesAndRow) {
-                  if (id !== cell1.ID && id !== cell2.ID) {
-                    let index = possibleValues[id].indexOf(
-                      possibleValues[cell1.ID][0]
-                    );
-
-                    if (index !== -1) {
-                      possibleValues[id].splice(index, 1);
-                    }
-
-                    index = possibleValues[id].indexOf(
-                      possibleValues[cell1.ID][1]
-                    );
-
-                    if (index !== -1) {
-                      possibleValues[id].splice(index, 1);
-                    }
-                  }
-                }
-              }
-
-              if (cell1.columnClass === cell2.columnClass) {
-                let idsInPossibleValuesAndCol = Object.keys(
-                  possibleValues
-                ).filter((key) =>
-                  columns[cell1.columnClass].includes(Number(key))
-                );
-
-                for (let id of idsInPossibleValuesAndCol) {
-                  if (id !== cell1.ID && id !== cell2.ID) {
-                    let index = possibleValues[id].indexOf(
-                      possibleValues[cell1.ID][0]
-                    );
-                    if (index !== -1) {
-                      possibleValues[id].splice(index, 1);
-                    }
-                    index = possibleValues[id].indexOf(
-                      possibleValues[cell1.ID][1]
-                    );
-                    if (index !== -1) {
-                      possibleValues[id].splice(index, 1);
-                    }
-                  }
+              let cell1 = length2Keys[x];
+              let cell2 = length2Keys[y];
+              let value1 = possibleValues[cell1][0];
+              let value2 = possibleValues[cell1][1];
+              for (let id of idsInPossibleValuesAndObjArray) {
+                if (id !== cell1 && id !== cell2) {
+                  remove(id, value1);
+                  remove(id, value2);
                 }
               }
             }
@@ -296,8 +233,6 @@ function solve() {
       }
     }
   }
-
-  //<----Testing new code above this line------>
 
   let length = Object.keys(possibleValues).length;
   let count = 0;
@@ -309,15 +244,12 @@ function solve() {
     checkArrays(boxes, "box");
     length = Object.keys(possibleValues).length;
     count++;
-    if (count % 2 === 0) {
-      checkDoubles();
-    }
+
     if (count > maximumIterations) {
-      console.log(possibleValues);
       for (key in possibleValues) {
         let cell = retrieveTableCellInfo(key);
         cell.tableCell.value = possibleValues[key];
-        cell.tableCell.style.fontSize = "10px";
+        cell.tableCell.classList.add("unsolvable");
       }
       alert(`Puzzle can not be solved within ${maximumIterations} iterations`);
       break;
@@ -328,10 +260,11 @@ function solve() {
 function solvePuzzle(event) {
   event.preventDefault();
   populateEnteredValues();
-  populatePossibleValues();
+
   if (checkInvalid()) {
     alert("Puzzle Invalid");
   } else {
+    populatePossibleValues();
     solve();
   }
 }
@@ -343,29 +276,36 @@ function reset() {
     delete possibleValues[String(i)];
     cell.tableCell.value = "";
     cell.tableCell.classList.remove("solved");
+    cell.tableCell.classList.remove("unsolvable");
   }
 }
 
 function checkInvalid() {
-  for (let i = 1; i <= SIZE; i++) {
-    let rowArr = rows[`row${i}`];
-    let colArr = columns[`column${i}`];
-    let boxArr = boxes[`box${i}`];
+  function checkRepeatNums(obj, arrLabels) {
+    let Invalid = false;
+    for (let i = 1; i <= SIZE; i++) {
+      let arr = obj[`${arrLabels}${i}`];
 
-    function checkArr(arr) {
-      let arrVals = [];
-      for (let j = 0; j < SIZE; j++) {
-        let cell = retrieveTableCellInfo(arr[j]);
-        if (cell.value) {
-          arrVals.push(cell.value);
-        }
+      let cellsInSameArr = Object.keys(enteredValues).filter((key) =>
+        arr.includes(Number(key))
+      );
+      let valsInSameArr = cellsInSameArr
+        .map((key) => enteredValues[key])
+        .filter((val) => val);
+      console.log(valsInSameArr);
+
+      if (valsInSameArr.length !== new Set(valsInSameArr).size) {
+        Invalid = true;
       }
-
-      return arrVals.length === new Set(arrVals).size;
     }
-
-    return !checkArr(rowArr) || !checkArr(colArr) || !checkArr(boxArr);
+    return Invalid;
   }
+
+  let checkRows = checkRepeatNums(rows, "row");
+  let checkCols = checkRepeatNums(columns, "column");
+  let checkBoxes = checkRepeatNums(boxes, "box");
+
+  return checkRows || checkCols || checkBoxes;
 }
 
 function populateDemoGame(event) {
